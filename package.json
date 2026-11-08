@@ -14,7 +14,7 @@
     "packages/cli"
   ],
   "scripts": {
-    "test": "node --test scripts/architecture/boundaries.test.mjs scripts/architecture/config-schema.test.mjs scripts/data/rollout.test.mjs scripts/secrets/scan.test.mjs packages/core/test/placeholder.test.mjs",
+    "test": "tsc -p packages/core/tsconfig.build.json && node --test scripts/architecture/boundaries.test.mjs scripts/architecture/config-schema.test.mjs scripts/data/rollout.test.mjs scripts/secrets/scan.test.mjs packages/core/test/placeholder.test.mjs packages/core/test/types.test.mjs",
     "lint": "tsc -p tsconfig.json --noEmit && node scripts/secrets/scan.mjs",
     "eval": "node scripts/eval.mjs"
   },
