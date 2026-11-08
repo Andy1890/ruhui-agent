@@ -3,7 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "命令名预定为 ruhui。Phase 0 编码完成前不提供可执行文件。",
+  "description": "命令 ruhui。提供 run、resume 和 doctor。",
+  "bin": {
+    "ruhui": "./ruhui.mjs"
+  },
+  "dependencies": {
+    "pub.rh.agent": "0.0.0"
+  },
   "exports": {
     ".": "./src/index.ts"
   }

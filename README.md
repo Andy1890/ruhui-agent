@@ -12,7 +12,7 @@
 
 ## 当前状态
 
-命令 `ruhui` 和 npm 包尚未发布。本仓库按 MIT 许可公开源码、配置 Schema、包骨架和测试。设计文档不在这个仓库里。不要把本仓库当作已经能完成笔记摘要的安装包。
+仓库里可以运行 `node packages/cli/ruhui.mjs`。`run`、`resume` 和 `doctor` 使用假模型或配置里的 OpenAI 兼容端点。npm 包尚未发布。设计文档不在这个仓库里。
 
 如辉 Token API（https://api.rh.pub/）将来只是一个可选的模型地址，不是运行依赖。
 

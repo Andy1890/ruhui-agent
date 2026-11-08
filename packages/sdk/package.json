@@ -3,7 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "伞包。Phase 0 尚未导出可运行的 Agent。",
+  "description": "伞包。命令行通过这里组装 Loop、工具和模型。",
+  "dependencies": {
+    "pub.rh.agent.core": "0.0.0",
+    "pub.rh.agent.providers": "0.0.0",
+    "pub.rh.agent.sandbox": "0.0.0",
+    "pub.rh.agent.tools": "0.0.0"
+  },
   "exports": {
     ".": "./src/index.ts"
   }
