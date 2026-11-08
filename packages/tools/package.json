@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "pub.rh.agent.core": "0.0.0"
+  },
   "exports": {
     ".": "./src/index.ts"
   }
