@@ -71,6 +71,7 @@ export async function runLoop(input: {
   now: () => string;
   clock?: () => number;
   instructions?: string;
+  context?: { system: string };
 }): Promise<LoopResult> {
   const turn = input.turn;
   const signal = input.signal ?? { aborted: false };
@@ -78,7 +79,7 @@ export async function runLoop(input: {
   const startedAt = clock ? clock() : 0;
   const consumed: Consumed = { ...turn.consumed, modelCalls: turn.consumed.modelCalls ?? 0, toolCalls: turn.consumed.toolCalls ?? 0 };
   const messages: ModelMessage[] = [];
-  const instructions = input.instructions ?? defaultInstructions;
+  const instructions = input.context?.system ?? input.instructions ?? defaultInstructions;
   if (instructions !== "") {
     messages.push({ role: "system", text: instructions });
   }

@@ -1,5 +1,6 @@
 export const packageName = "pub.rh.agent.core";
 
+export { assembleContext, discoverInstructions, maxInstructionBytes, type ContextPlanStep, type ContextTool, type InstructionFile, type InstructionSource } from "./context.js";
 export { budgetReached, parseBudget, parseConsumed, type Budget, type Consumed } from "./budget.js";
 export { parseRolloutEvent, type RolloutEvent, type RolloutEventType } from "./event.js";
 export { openRollout, readRollout, redactJson, type RolloutHandle, type RolloutRead, type SessionFiles } from "./rollout.js";
