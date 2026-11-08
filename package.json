@@ -14,7 +14,7 @@
     "packages/cli"
   ],
   "scripts": {
-    "test": "tsc -p packages/core/tsconfig.build.json && tsc -p packages/providers/tsconfig.build.json && tsc -p packages/sandbox/tsconfig.build.json && tsc -p packages/tools/tsconfig.build.json && node --test scripts/architecture/boundaries.test.mjs scripts/architecture/config-schema.test.mjs scripts/data/rollout.test.mjs scripts/secrets/scan.test.mjs packages/core/test/placeholder.test.mjs packages/core/test/types.test.mjs packages/core/test/rollout.test.mjs packages/core/test/loop.test.mjs packages/providers/test/scripted.test.mjs packages/sandbox/test/path-jail.test.mjs packages/tools/test/runtime.test.mjs packages/tools/test/files.test.mjs packages/tools/test/command.test.mjs",
+    "test": "tsc -p packages/core/tsconfig.build.json && tsc -p packages/providers/tsconfig.build.json && tsc -p packages/sandbox/tsconfig.build.json && tsc -p packages/tools/tsconfig.build.json && node --test scripts/architecture/boundaries.test.mjs scripts/architecture/config-schema.test.mjs scripts/data/rollout.test.mjs scripts/secrets/scan.test.mjs packages/core/test/placeholder.test.mjs packages/core/test/types.test.mjs packages/core/test/rollout.test.mjs packages/core/test/loop.test.mjs packages/providers/test/scripted.test.mjs packages/sandbox/test/path-jail.test.mjs packages/tools/test/runtime.test.mjs packages/tools/test/files.test.mjs packages/tools/test/command.test.mjs packages/tools/test/plan.test.mjs",
     "lint": "tsc -p tsconfig.json --noEmit && node scripts/secrets/scan.mjs",
     "eval": "node scripts/eval.mjs"
   },
