@@ -1,0 +1,3 @@
+{"schemaVersion":1,"seq":1,"time":"2026-11-08T04:00:01.000Z","sessionId":"ses_fixture","turnId":"trn_fixture","type":"turn.started","payload":{"input":{"text":"x"},"mode":"plan","budget":{}}}
+{"schemaVersion":1,"seq":2,"time":"2026-11-08T04:00:02.000Z","sessionId":"ses_fixture","turnId":"trn_fixture","type":"tool.finished","payload":{"callId":"call_list","name":"list_dir","policy":{"decision":"allow"},"result":{"status":"ok","content":[],"artifacts":[],"sideEffects":[]}}}
+{"seq":3,"partial":

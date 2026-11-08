@@ -1,0 +1,14 @@
+name: 安全
+description: 不要在这里填写漏洞细节
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请把漏洞发到 SECURITY.md 中的邮箱。这个 Issue 只用来确认你已经私下联系维护者，不要粘贴利用步骤、密钥或客户数据。
+  - type: input
+    attributes:
+      label: 是否已经发送邮件
+      placeholder: 已发送
+    validations:
+      required: true

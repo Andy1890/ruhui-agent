@@ -1,0 +1,2 @@
+* text=auto eol=lf
+evals/fixtures/rollout/*.jsonl text eol=lf

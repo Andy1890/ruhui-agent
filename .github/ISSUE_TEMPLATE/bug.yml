@@ -1,0 +1,10 @@
+name: 缺陷
+description: 运行时行为与已经冻结的需求不一致
+labels: ["bug"]
+body:
+  - type: textarea
+    attributes:
+      label: 发生了什么
+      description: 写明版本、操作系统、期望和实际结果。不要粘贴密钥。
+    validations:
+      required: true

@@ -1,0 +1,2 @@
+{"schemaVersion":1,"seq":1,"time":"2026-11-08T04:00:01.000Z","sessionId":"ses_fixture","turnId":"trn_fixture","type":"turn.started","payload":{"input":{"text":"x"},"mode":"plan","budget":{}}}
+{"schemaVersion":1,"seq":3,"time":"2026-11-08T04:00:03.000Z","sessionId":"ses_fixture","turnId":"trn_fixture","type":"turn.completed","payload":{"status":"completed","text":"x","consumed":{"toolCalls":0}}}

@@ -1,0 +1,10 @@
+{
+  "name": "pub.rh.agent.core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent Loop。不得依赖 tools、sandbox 或 cli。",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

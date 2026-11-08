@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rh.pub/schemas/pub.rh.agent/config-phase0.json",
+  "title": "pub.rh.agent Phase 0 配置",
+  "description": "Phase 0 只接受 plan 与 workspace-write。mode 为 default 或 full 时校验失败。项目配置把 mode 升成更宽模式的合并规则在 Phase 1 实现；本 Schema 先拒绝这两种尚不存在的模式，并拒绝未知字段。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "baseUrl", "model"],
+      "properties": {
+        "provider": {
+          "const": "openai-compatible"
+        },
+        "baseUrl": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "apiKeyEnv": {
+          "description": "只能是环境变量名，不能是文件路径。",
+          "type": "string",
+          "pattern": "^[A-Z_][A-Z0-9_]*$"
+        }
+      }
+    },
+    "mode": {
+      "description": "default 和 full 不属于 Phase 0。项目文件不能借助这两个值放宽用户配置。",
+      "enum": ["plan", "workspace-write"]
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxModelCalls": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxToolCalls": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxInputTokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxOutputTokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "wallClockMs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "sandbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "description": "Phase 0 只有路径监禁。auto、bubblewrap、landlock、seatbelt、container 都拒绝。",
+          "const": "path-jail"
+        },
+        "network": {
+          "const": false
+        }
+      }
+    }
+  }
+}

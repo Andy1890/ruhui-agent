@@ -1,0 +1,10 @@
+name: 需求
+description: 建议进入后续 Phase 的能力
+labels: ["enhancement"]
+body:
+  - type: textarea
+    attributes:
+      label: 要完成的事
+      description: Phase 0 已冻结。新需求默认进入后续阶段。
+    validations:
+      required: true

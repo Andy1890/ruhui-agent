@@ -1,0 +1,10 @@
+{
+  "name": "pub.rh.agent.cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "命令名预定为 ruhui。Phase 0 编码完成前不提供可执行文件。",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

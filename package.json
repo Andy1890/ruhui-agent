@@ -1,0 +1,24 @@
+{
+  "name": "ruhui-agent",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26.13.0"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/providers",
+    "packages/sandbox",
+    "packages/tools",
+    "packages/sdk",
+    "packages/cli"
+  ],
+  "scripts": {
+    "test": "node --test scripts/architecture/boundaries.test.mjs scripts/architecture/config-schema.test.mjs scripts/data/rollout.test.mjs scripts/secrets/scan.test.mjs packages/core/test/placeholder.test.mjs",
+    "lint": "tsc -p tsconfig.json --noEmit && node scripts/secrets/scan.mjs",
+    "eval": "node scripts/eval.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

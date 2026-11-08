@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+*.env
+credentials.json
+.ruhui/credentials.json
+.DS_Store
+Thumbs.db
+~$*
+/doc/
+/docs/
