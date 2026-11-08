@@ -29,7 +29,7 @@ export type ModelEvent =
   | { type: "text"; text: string }
   | { type: "tool_call"; call: ModelToolCall }
   | { type: "usage"; inputTokens: number; outputTokens: number }
-  | { type: "error"; code: "tools_required" | "script_exhausted" | "aborted" }
+  | { type: "error"; code: "tools_required" | "script_exhausted" | "aborted" | "request_failed" }
   | { type: "done" };
 
 export type ModelProvider = {

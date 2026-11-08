@@ -16,6 +16,7 @@ export type LoopStop =
   | "repeated_failure"
   | "unparseable"
   | "tools_required"
+  | "request_failed"
   | "rollout_unwritable"
   | "waiting_user";
 
@@ -50,7 +51,8 @@ type Inference =
   | { kind: "tools"; calls: ToolCallRequest[]; text: string; usageSeen: boolean; inputTokens: number; outputTokens: number }
   | { kind: "malformed"; reason: string; usageSeen: boolean; inputTokens: number; outputTokens: number }
   | { kind: "aborted" }
-  | { kind: "tools_required" };
+  | { kind: "tools_required" }
+  | { kind: "request_failed" };
 
 const limitRows = [
   ["maxModelCalls", "modelCalls", "模型调用"],
@@ -235,6 +237,9 @@ export async function runLoop(input: {
     if (outcome.kind === "tools_required") {
       return finish("failed", 1, "模型不支持工具调用。", "tools_required", true);
     }
+    if (outcome.kind === "request_failed") {
+      return finish("failed", 1, "模型请求失败。", "request_failed", true);
+    }
     if (outcome.kind === "malformed") {
       malformed += 1;
       malformedReasons.push(outcome.reason);
@@ -390,6 +395,9 @@ function classify(events: readonly ModelEvent[]): Inference {
     }
     if (event.type === "error" && event.code === "tools_required") {
       return { kind: "tools_required" };
+    }
+    if (event.type === "error" && event.code === "request_failed") {
+      return { kind: "request_failed" };
     }
     if (event.type === "error") {
       return { kind: "malformed", reason: `模型调用失败：${event.code}。`, usageSeen, inputTokens, outputTokens };

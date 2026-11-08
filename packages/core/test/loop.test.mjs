@@ -365,6 +365,47 @@ test("不支持工具调用时直接失败", async () => {
   assert.deepEqual(events.map((event) => event.type), ["turn.started", "turn.completed"]);
 });
 
+test("模型请求失败时停止，不再发起下一次推理", async () => {
+  const files = memoryFiles();
+  const opened = openRollout({
+    files,
+    sessionId: "ses_note_summary",
+    pid: 21,
+    isAlive: () => false,
+    now,
+  });
+  assert.equal(opened.ok, true);
+  const turn = createTurn({
+    id: "trn_note_summary",
+    sessionId: "ses_note_summary",
+    input: { text: "阅读本目录的笔记，生成 summary.md" },
+    mode: "workspace-write",
+    budget: { maxToolCalls: 8 },
+  });
+  assert.equal(turn.ok, true);
+  let calls = 0;
+  const result = await runLoop({
+    turn: turn.value,
+    provider: {
+      id: "openai-compatible",
+      profile: profile(),
+      async *complete() {
+        calls += 1;
+        yield { type: "error", code: "request_failed" };
+        yield { type: "done" };
+      },
+    },
+    tools: { execute() { throw new Error("不应执行"); } },
+    rollout: opened.value,
+    now: () => now,
+  });
+  opened.value.release();
+  assert.equal(calls, 1);
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.stop, "request_failed");
+  assert.equal(result.text, "模型请求失败。");
+});
+
 test("开始前中断不调用模型", async () => {
   const { result, requests, events } = await run(
     [{ type: "text", text: "不应调用" }],
