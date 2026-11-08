@@ -12,7 +12,7 @@
 
 ## 当前状态
 
-仓库里可以运行 `node packages/cli/ruhui.mjs`。`run`、`resume` 和 `doctor` 使用假模型或配置里的 OpenAI 兼容端点。npm 包尚未发布。设计文档不在这个仓库里。
+仓库里可以运行 `node packages/cli/ruhui.mjs`。同进程调用使用 `packages/sdk/agent-node.mjs` 里的 `Agent`：`run` 返回最终文本，`stream` 交出工具和回合事件。二者都使用假模型或配置里的 OpenAI 兼容端点。npm 包尚未发布。设计文档不在这个仓库里。
 
 如辉 Token API（https://api.rh.pub/）将来只是一个可选的模型地址，不是运行依赖。
 

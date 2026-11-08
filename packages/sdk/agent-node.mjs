@@ -12,7 +12,7 @@ import { sandboxBackend } from "../sandbox/dist/index.js";
 import { createPlanHandlers, executeToolBatch, phase0Tools } from "../tools/dist/index.js";
 import { nodeCommandTools } from "../tools/command-node.mjs";
 import { nodeFileTools } from "../tools/files-node.mjs";
-import { completedWriteKeys, phase1ModeText, renderDoctor, renderRun, resolveMode, runtimeVersion, skippedWriteResult, writeTarget } from "./dist/index.js";
+import { completedWriteKeys, exitCodeFor, phase1ModeText, renderDoctor, renderRun, resolveMode, runtimeVersion, sdkEventsFor, skippedWriteResult, writeTarget } from "./dist/index.js";
 
 const schema = loadSchema(fileURLToPath(new URL("../../schema/config.schema.json", import.meta.url)));
 const budgetKeys = ["maxModelCalls", "maxToolCalls", "maxInputTokens", "maxOutputTokens", "wallClockMs"];
@@ -177,10 +177,11 @@ async function executeTurn(input) {
     return fail(1, "无法创建本轮。");
   }
   const ownsRollout = input.rollout === undefined;
-  const rollout = ownsRollout ? openSession(input.files, input.sessionId, input.io) : { ok: true, handle: input.rollout };
-  if (!rollout.ok) {
-    return rollout;
+  const opened = ownsRollout ? openSession(input.files, input.sessionId, input.io) : { ok: true, handle: input.rollout };
+  if (!opened.ok) {
+    return opened;
   }
+  const rollout = { ok: true, handle: observeRollout(opened.handle, input.onEvent) };
   try {
     const assembled = assembleContext({
       profile: input.provider.profile,
@@ -226,6 +227,154 @@ async function executeTurn(input) {
       rollout.handle.release();
     }
   }
+}
+
+function observeRollout(handle, onEvent) {
+  if (!onEvent) {
+    return handle;
+  }
+  return {
+    get read() {
+      return handle.read;
+    },
+    append(input) {
+      const written = handle.append(input);
+      if (written.ok) {
+        for (const event of sdkEventsFor(written.value)) {
+          onEvent(event);
+        }
+      }
+      return written;
+    },
+    release() {
+      handle.release();
+    },
+  };
+}
+
+export class Agent {
+  constructor(options = {}) {
+    this.options = options;
+  }
+
+  async run(task) {
+    let completed = null;
+    let requested = null;
+    let sessionId = "";
+    for await (const event of this.stream(task)) {
+      sessionId = event.sessionId;
+      if (event.type === "turn.completed") {
+        completed = event;
+      }
+      if (event.type === "user.requested") {
+        requested = event;
+      }
+    }
+    if (requested && !completed) {
+      return { text: requested.question, sessionId, status: "waiting_user", exitCode: 3 };
+    }
+    if (!completed) {
+      return { text: "", sessionId, status: "failed", exitCode: 1 };
+    }
+    return { text: completed.text, sessionId, status: completed.status, exitCode: exitCodeFor(completed.status) };
+  }
+
+  async *stream(task) {
+    const queue = [];
+    let notify = () => {};
+    let finished = false;
+    let failure = null;
+    const pending = runObserved(this.options, task, (event) => {
+      queue.push(event);
+      notify();
+    }).then(
+      () => {
+        finished = true;
+        notify();
+      },
+      (error) => {
+        failure = error;
+        finished = true;
+        notify();
+      },
+    );
+    while (queue.length > 0 || !finished) {
+      if (queue.length === 0) {
+        await new Promise((resolve) => {
+          notify = resolve;
+        });
+        continue;
+      }
+      yield queue.shift();
+    }
+    await pending;
+    if (failure) {
+      throw failure;
+    }
+  }
+}
+
+async function runObserved(options, task, onEvent) {
+  if (typeof task !== "string" || task.trim() === "") {
+    throw new Error("任务不能为空。");
+  }
+  if (options.mode === "default" || options.mode === "full") {
+    throw new Error(phase1ModeText);
+  }
+  const env = options.env ?? {};
+  const home = typeof options.home === "string" && options.home.trim() !== "" ? path.resolve(options.home) : homeDirectory(env);
+  const source = nodeInstructionSource();
+  if (typeof options.workspace !== "string" || options.workspace.trim() === "") {
+    throw new Error("需要工作区。");
+  }
+  const workspace = workspaceRoot(options.workspace, home, source);
+  const placed = rejectHomeInside(workspace, home);
+  if (!placed.ok) {
+    throw new Error(placed.stderr.trim());
+  }
+  const configs = loadConfigs(home, workspace);
+  if (!configs.ok) {
+    throw new Error(configs.text);
+  }
+  const mode = resolveMode({ cli: options.mode, user: configs.user.mode, project: configs.project.mode });
+  if (!mode.ok) {
+    throw new Error(mode.text);
+  }
+  const provider = Array.isArray(options.script)
+    ? { ok: true, provider: createScriptedProvider(options.script) }
+    : createProvider(env, configs);
+  if (!provider.ok) {
+    throw new Error(provider.text);
+  }
+  const sessionId = options.sessionId ?? newId("ses_");
+  const created = createSession({
+    id: sessionId,
+    workspaceRoot: workspace,
+    createdAt: timestamp(),
+    runtimeVersion,
+  });
+  if (!created.ok) {
+    throw new Error("无法创建会话。");
+  }
+  const files = nodeSessionFiles(path.join(home, "sessions", sessionId));
+  files.write("meta.json", `${JSON.stringify(created.value)}\n`);
+  const rendered = await executeTurn({
+    io: { env, pid: process.pid, signal: options.signal, home, source },
+    files,
+    provider: provider.provider,
+    workspace,
+    sessionId,
+    mode: mode.mode,
+    budget: budgetFor({ maxToolCalls: options.budget?.maxToolCalls }, configs),
+    task,
+    prior: [],
+    resumedFrom: undefined,
+    onEvent,
+  });
+  if (rendered.stderr) {
+    throw new Error(rendered.stderr.trim());
+  }
+  return rendered;
 }
 
 function toolExecutor(mode, workspace, priorKeys, env) {
