@@ -1,0 +1,59 @@
+{
+  "windows": {
+    "workspaceRoot": "D:/work/notes",
+    "entries": {
+      "D:/work": "D:/work",
+      "D:/work/notes": "D:/work/notes",
+      "D:/work/notes/sub": "D:/work/notes/sub",
+      "D:/work/notes/sub/a.md": "D:/work/notes/sub/a.md",
+      "D:/work/notes/link": "D:/work/outside-secret.txt",
+      "D:/work/notes/jump": "D:/outside",
+      "D:/work/notes/inner": "D:/work/notes/sub",
+      "D:/work/outside-secret.txt": "D:/work/outside-secret.txt",
+      "D:/work/notes-evil/x": "D:/work/notes-evil/x",
+      "D:/outside": "D:/outside",
+      "D:/outside/secret.txt": "D:/outside/secret.txt"
+    },
+    "cases": [
+      { "requested": "", "allowed": true, "relativePath": "" },
+      { "requested": "sub/a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "sub/../a.md", "allowed": true, "relativePath": "a.md" },
+      { "requested": "summary.md", "allowed": true, "relativePath": "summary.md" },
+      { "requested": "inner/a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "D:/work/notes/sub/a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "D:\\work\\notes\\sub\\a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "d:/work/notes/sub/a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "../outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "D:/work/outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "D:\\work\\outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "link", "allowed": false, "reason": "outside" },
+      { "requested": "jump/secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "inner/../../outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "D:/work/notes-evil/x", "allowed": false, "reason": "outside" },
+      { "requested": "C:/Windows/system32", "allowed": false, "reason": "outside" },
+      { "requested": "/outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "\\\\server\\share\\secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "a.md:stream", "allowed": false, "reason": "invalid" },
+      { "requested": "C:outside-secret.txt", "allowed": false, "reason": "invalid" },
+      { "requested": "\\\\?\\D:\\work\\outside-secret.txt", "allowed": false, "reason": "invalid" }
+    ]
+  },
+  "posix": {
+    "workspaceRoot": "/work/notes",
+    "entries": {
+      "/work": "/work",
+      "/work/notes": "/work/notes",
+      "/work/notes/sub": "/work/notes/sub",
+      "/work/notes/link": "/work/outside-secret.txt",
+      "/work/outside-secret.txt": "/work/outside-secret.txt",
+      "/etc/passwd": "/etc/passwd"
+    },
+    "cases": [
+      { "requested": "sub/a.md", "allowed": true, "relativePath": "sub/a.md" },
+      { "requested": "../outside-secret.txt", "allowed": false, "reason": "outside" },
+      { "requested": "/etc/passwd", "allowed": false, "reason": "outside" },
+      { "requested": "link", "allowed": false, "reason": "outside" },
+      { "requested": "/work/notes-evil/x", "allowed": false, "reason": "outside" }
+    ]
+  }
+}
