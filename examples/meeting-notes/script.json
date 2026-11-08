@@ -1,0 +1,33 @@
+[
+  {
+    "type": "tool",
+    "callId": "call_list",
+    "name": "list_dir",
+    "arguments": { "path": "." }
+  },
+  {
+    "type": "tool",
+    "callId": "call_read_a",
+    "name": "read_file",
+    "arguments": { "path": "2026-11-01.md" }
+  },
+  {
+    "type": "tool",
+    "callId": "call_read_b",
+    "name": "read_file",
+    "arguments": { "path": "2026-11-02.md" }
+  },
+  {
+    "type": "tool",
+    "callId": "call_write",
+    "name": "write_file",
+    "arguments": {
+      "path": "summary.md",
+      "content": "# 笔记摘要\n\n- 发布日期：2026-12-01\n- 负责人：周宁\n- 预算上限：2 万元，不包含差旅。\n"
+    }
+  },
+  {
+    "type": "text",
+    "text": "已生成 summary.md。发布日期为 2026-12-01，负责人为周宁，预算上限为 2 万元。"
+  }
+]

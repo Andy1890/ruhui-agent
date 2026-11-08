@@ -17,3 +17,4 @@
 - P0-12：`ruhui run`、`ruhui resume` 和 `ruhui doctor` 使用 Phase 0 退出码。假模型可以跑通笔记摘要、缺参数、越界读取、危险命令、中断恢复和预算耗尽。`doctor` 打印的沙箱后端是 `path-jail`。
 - P0-13：同进程 SDK 的 `run` 返回最终文本、会话标识和终态。`stream` 交出 `message.delta`、`tool.started`、`tool.finished`、`user.requested` 和 `turn.completed`。只读验收使用 `plan`。
 - P0-14：超过 32 KiB 的工具输出写入 `blobs/`，上下文只保留原始字节数和路径。最近一条用户消息仍留在上下文中，不调用模型做摘要。
+- P0-15：`examples/meeting-notes` 使用假模型离线生成含三则事实的 `summary.md`。`doctor` 打印版本、工作区和沙箱 `path-jail`。
