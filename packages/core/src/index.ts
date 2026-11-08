@@ -3,6 +3,7 @@ export const packageName = "pub.rh.agent.core";
 export { budgetReached, parseBudget, parseConsumed, type Budget, type Consumed } from "./budget.js";
 export { parseRolloutEvent, type RolloutEvent, type RolloutEventType } from "./event.js";
 export { openRollout, readRollout, redactJson, type RolloutHandle, type RolloutRead, type SessionFiles } from "./rollout.js";
+export { runLoop, type LoopResult, type LoopStop, type ToolCallRequest, type ToolExecutor } from "./loop.js";
 export type { ModelEvent, ModelProfile, ModelProvider, ModelRequest, ModelSignal } from "./model.js";
 export { fail, ok, type Result } from "./result.js";
 export { schemaVersion } from "./schema-version.js";
