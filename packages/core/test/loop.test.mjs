@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
-import { createTurn, openRollout, readRollout, runLoop } from "../dist/index.js";
+import { createTurn, maxInlineToolTextBytes, openRollout, readRollout, runLoop } from "../dist/index.js";
 
 const now = "2026-11-08T04:00:01.000Z";
 
@@ -174,6 +174,25 @@ test("假模型按推理、工具、再推理走到最终答复", async () => {
   assert.equal(first.requests.some((request) => JSON.stringify(request).includes("update_plan")), false);
   assert.equal(first.events.at(-1).payload.status, "completed");
   assert.equal(first.events.at(-1).payload.consumed.toolCalls, 3);
+});
+
+test("超长工具输出在上下文里换成落盘引用，不调用模型做摘要", async () => {
+  const huge = `${"x".repeat(maxInlineToolTextBytes)}TAIL-MARKER`;
+  const tools = { execute() { return okResult(huge); } };
+  const script = [
+    { type: "tool", callId: "call_huge", name: "read_file", arguments: { path: "big.txt" } },
+    { type: "text", text: "已看到引用。" },
+  ];
+  const ran = await run(script, tools);
+  assert.equal(ran.requests.length, 2);
+  const user = "阅读本目录的笔记，生成 summary.md";
+  assert.equal(ran.requests[1].messages.some((message) => message.role === "user" && message.text === user), true);
+  const tool = ran.requests[1].messages.find((message) => message.role === "tool");
+  assert.equal(tool.text.includes("TAIL-MARKER"), false);
+  assert.equal(tool.text.includes(`已落盘：原始 ${huge.length} 字节，路径 blobs/call_huge.txt。`), true);
+  assert.equal(ran.files.files.get("blobs/call_huge.txt"), huge);
+  assert.equal(ran.files.files.get("rollout.jsonl").includes("TAIL-MARKER"), false);
+  assert.equal(ran.result.text, "已看到引用。");
 });
 
 test("工具抛错会回到下一次推理，不穿透出 Loop", async () => {

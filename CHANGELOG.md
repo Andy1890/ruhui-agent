@@ -16,3 +16,4 @@
 - P0-11：上下文按基础指令、能力、环境快照、项目指令和工具 schema 的顺序组装。同层有 `RUHUI.md` 时不读取 `AGENTS.md`；指令文件超过 32 KiB 时截断，用户消息仍保留。
 - P0-12：`ruhui run`、`ruhui resume` 和 `ruhui doctor` 使用 Phase 0 退出码。假模型可以跑通笔记摘要、缺参数、越界读取、危险命令、中断恢复和预算耗尽。`doctor` 打印的沙箱后端是 `path-jail`。
 - P0-13：同进程 SDK 的 `run` 返回最终文本、会话标识和终态。`stream` 交出 `message.delta`、`tool.started`、`tool.finished`、`user.requested` 和 `turn.completed`。只读验收使用 `plan`。
+- P0-14：超过 32 KiB 的工具输出写入 `blobs/`，上下文只保留原始字节数和路径。最近一条用户消息仍留在上下文中，不调用模型做摘要。

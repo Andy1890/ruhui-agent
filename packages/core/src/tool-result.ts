@@ -51,7 +51,7 @@ export function utf8ByteLength(text: string): number {
   return bytes;
 }
 
-function parseTextBlock(value: unknown): Result<TextBlock> {
+function parseTextBlock(value: unknown, allowLarge: boolean): Result<TextBlock> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return fail("tool-content");
   }
@@ -68,7 +68,7 @@ function parseTextBlock(value: unknown): Result<TextBlock> {
     }
     return ok({ type: "text", text: "", bytes: block.bytes, storedAt: block.storedAt });
   }
-  if (utf8ByteLength(block.text) > maxInlineToolTextBytes) {
+  if (!allowLarge && utf8ByteLength(block.text) > maxInlineToolTextBytes) {
     return fail("tool-text");
   }
   return ok({ type: "text", text: block.text });
@@ -117,7 +117,7 @@ function parseSideEffect(value: unknown): Result<SideEffect> {
   return ok({ kind: "write", target: source.target, summary: source.summary });
 }
 
-export function parseToolResult(value: unknown): Result<ToolResult> {
+export function parseToolResult(value: unknown, options?: { allowLarge?: boolean }): Result<ToolResult> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return fail("tool-result");
   }
@@ -130,8 +130,9 @@ export function parseToolResult(value: unknown): Result<ToolResult> {
     return fail("tool-result");
   }
   const content: TextBlock[] = [];
+  const allowLarge = options?.allowLarge === true;
   for (const block of source.content) {
-    const parsed = parseTextBlock(block);
+    const parsed = parseTextBlock(block, allowLarge);
     if (!parsed.ok) {
       return parsed;
     }

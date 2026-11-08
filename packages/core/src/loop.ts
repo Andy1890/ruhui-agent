@@ -3,8 +3,8 @@ import type { RolloutEvent, RolloutEventType } from "./event.js";
 import type { ModelEvent, ModelMessage, ModelProvider, ModelSignal } from "./model.js";
 import { fail, type Result } from "./result.js";
 import type { RolloutHandle } from "./rollout.js";
-import { callIdPattern, toolNamePattern } from "./schema-version.js";
-import { parseToolResult, type ToolResult } from "./tool-result.js";
+import { callIdPattern, maxInlineToolTextBytes, toolNamePattern } from "./schema-version.js";
+import { parseToolResult, utf8ByteLength, type ToolResult } from "./tool-result.js";
 import type { Turn, TurnStatus } from "./turn.js";
 
 const defaultInstructions = "使用工具完成任务。不要伪造工具结果。";
@@ -300,7 +300,7 @@ export async function runLoop(input: {
         failureKey = "";
         failureCount = 0;
       }
-      messages.push({ role: "tool", callId: call.callId, text: observedText(result) });
+      messages.push({ role: "tool", callId: call.callId, text: observedText(result, call.callId) });
       if (result.status === "needs_approval") {
         const asked = append("user.requested", { callId: call.callId, question: questionFor(call, result) });
         if (!asked.ok) {
@@ -324,7 +324,7 @@ export async function runLoop(input: {
 async function executeCall(tools: ToolExecutor, call: ToolCallRequest, signal: ModelSignal): Promise<ToolResult> {
   try {
     const raw = await tools.execute(call, signal);
-    const parsed = parseToolResult(raw);
+    const parsed = parseToolResult(raw, { allowLarge: true });
     return parsed.ok ? parsed.value : errorResult("工具结果无法归一化。");
   } catch {
     return errorResult("工具执行失败。");
@@ -350,13 +350,29 @@ function questionFor(call: ToolCallRequest, result: ToolResult): string {
   return fromContent ? fromContent.text : "需要回答";
 }
 
-function observedText(result: ToolResult): string {
+function observedText(result: ToolResult, callId: string): string {
   const blocks = result.content
-    .map((block) => (block.text !== "" ? block.text : "storedAt" in block ? `${block.storedAt} ${block.bytes}` : ""))
+    .map((block, index) => referenceFor(block, callId, index, result.content.length))
     .filter((text) => text !== "");
   const hint = result.correctiveHint && !blocks.includes(result.correctiveHint) ? result.correctiveHint : "";
   const body = [...blocks, hint].filter((text) => text !== "").join("\n");
   return body === "" ? result.status : `${result.status}\n${body}`;
+}
+
+function referenceFor(block: ToolResult["content"][number], callId: string, index: number, count: number): string {
+  if ("storedAt" in block) {
+    return spillNote(block.bytes, block.storedAt);
+  }
+  const bytes = utf8ByteLength(block.text);
+  if (bytes > maxInlineToolTextBytes) {
+    const suffix = count === 1 ? "" : `-${index}`;
+    return spillNote(bytes, `blobs/${callId}${suffix}.txt`);
+  }
+  return block.text;
+}
+
+function spillNote(bytes: number, storedAt: string): string {
+  return `已落盘：原始 ${bytes} 字节，路径 ${storedAt}。`;
 }
 
 function describeCall(call: ToolCallRequest): string {
